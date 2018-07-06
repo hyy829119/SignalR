@@ -20,16 +20,12 @@ export class HubConnection {
     private methods: { [name: string]: Array<(...args: any[]) => void> };
     private id: number;
     private closedCallbacks: Array<(error?: Error) => void>;
-<<<<<<< HEAD
-    private timeoutHandle: NodeJS.Timer;
-=======
->>>>>>> b124cb52... Switch UMD build to WebPack (#2496)
+    private timeoutHandle?: any;
     private receivedHandshakeResponse: boolean;
 
     // The type of these a) doesn't matter and b) varies when building in browser and node contexts
     // Since we're building the WebPack bundle directly from the TypeScript, this matters (previously
     // we built the bundle from the compiled JavaScript).
-    private timeoutHandle?: any;
     private pingServerHandle?: any;
 
     /** The server timeout in milliseconds.
