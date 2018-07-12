@@ -711,16 +711,7 @@ namespace Microsoft.AspNetCore.SignalR.Protocol
                 {
                     if (paramIndex < paramCount)
                     {
-                        // StreamPlaceholder is basically a wrapper over an `id` string
-                        // To send a stream, the client sends a single string, and we "wrap" it here to label it as a `streamId`
-                        if (paramTypes[paramIndex] == typeof(StreamPlaceholder))
-                        {
-                            arguments[paramIndex] = (StreamPlaceholder)PayloadSerializer.Deserialize(reader, typeof(StreamPlaceholder));
-                        }
-                        else
-                        {
-                            arguments[paramIndex] = PayloadSerializer.Deserialize(reader, paramTypes[paramIndex]);
-                        }
+                        arguments[paramIndex] = PayloadSerializer.Deserialize(reader, paramTypes[paramIndex]);
                     }
                     else
                     {
