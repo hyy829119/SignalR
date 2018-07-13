@@ -668,7 +668,7 @@ namespace Microsoft.AspNetCore.SignalR.Protocol
                 throw new InvalidDataException($"Missing required property '{ArgumentsPropertyName}'.");
             }
 
-            return new InvocationMessage(invocationId, target, arguments, streamingUpload);
+            return new InvocationMessage(invocationId, target, arguments);
         }
 
         private bool ReadArgumentAsType(JsonTextReader reader, IReadOnlyList<Type> paramTypes, int paramIndex)

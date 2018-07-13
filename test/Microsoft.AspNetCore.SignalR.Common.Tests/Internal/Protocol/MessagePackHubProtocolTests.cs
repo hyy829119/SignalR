@@ -266,7 +266,7 @@ namespace Microsoft.AspNetCore.SignalR.Common.Tests.Internal.Protocol
         [Fact]
         public void ParseMessageWithExtraData()
         {
-            var expectedMessage = new InvocationMessage("xyz", "method", Array.Empty<object>(), true);
+            var expectedMessage = new InvocationMessage("xyz", "method", Array.Empty<object>());
 
             // Verify that the input binary string decodes to the expected MsgPack primitives
             var bytes = new byte[] { ArrayBytes(8),

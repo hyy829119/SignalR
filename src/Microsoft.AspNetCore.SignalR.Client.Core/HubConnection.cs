@@ -547,7 +547,7 @@ namespace Microsoft.AspNetCore.SignalR.Client
             Log.PreparingBlockingInvocation(_logger, irq.InvocationId, methodName, irq.ResultType.FullName, args.Length);
 
             // Client invocations are always blocking
-            var invocationMessage = new InvocationMessage(irq.InvocationId, methodName, args, hasStream);
+            var invocationMessage = new InvocationMessage(irq.InvocationId, methodName, args);
 
             Log.RegisteringInvocation(_logger, invocationMessage.InvocationId);
             _connectionState.AddInvocation(irq);
@@ -616,7 +616,7 @@ namespace Microsoft.AspNetCore.SignalR.Client
 
             Log.PreparingNonBlockingInvocation(_logger, methodName, args.Length);
 
-            var invocationMessage = new InvocationMessage(null, methodName, args, isParameterStream);
+            var invocationMessage = new InvocationMessage(null, methodName, args);
             await SendWithLock(invocationMessage, callerName: nameof(SendCoreAsync));
 
             LaunchStreams(readers, cancellationToken);

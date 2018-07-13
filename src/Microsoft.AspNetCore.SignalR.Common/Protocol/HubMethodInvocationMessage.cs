@@ -66,18 +66,6 @@ namespace Microsoft.AspNetCore.SignalR.Protocol
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="InvocationMessage"/> class.
-        /// </summary>
-        /// <param name="invocationId">The invocation ID.</param>
-        /// <param name="target">The target method name.</param>
-        /// <param name="arguments">The target method arguments.</param>
-        /// <param name="hasStream">If true, this invocation will open a streaming hub on the server, letting you send StreamItems to the same invocationId.</param>
-        public InvocationMessage(string invocationId, string target, object[] arguments, bool hasStream)
-            : base(invocationId, target, arguments)
-        {
-        }
-
         /// <inheritdoc />
         public override string ToString()
         {

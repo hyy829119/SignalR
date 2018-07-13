@@ -178,8 +178,10 @@ namespace Microsoft.AspNetCore.SignalR.Client.Tests
                 channel.Writer.TryComplete();
                 var completion = await connection.ReadSentJsonAsync().OrTimeout();
                 Assert.Equal(HubProtocolConstants.StreamCompleteMessageType, completion["type"]);
-
-                await connection.ReceiveJsonMessage(new { type = HubProtocolConstants.CompletionMessageType, invocationId = invocation["invocationId"], result = 42 });
+                
+                await connection.ReceiveJsonMessage(
+                    new { type = HubProtocolConstants.CompletionMessageType, invocationId = invocation["invocationId"], result = 42 }
+                    ).OrTimeout();
                 var result = await invokeTask.OrTimeout();
                 Assert.Equal(42, result);
             }
@@ -201,6 +203,17 @@ namespace Microsoft.AspNetCore.SignalR.Client.Tests
                 Assert.Equal(HubProtocolConstants.InvocationMessageType, invocation["type"]);
                 Assert.Equal("SomeMethod", invocation["target"]);
                 Assert.Null(invocation["invocationId"]);
+                var streamId = invocation["arguments"][0]["streamId"];
+
+                foreach (var item in new[] { 2, 3, 10, 5 })
+                {
+                    await channel.Writer.WriteAsync(item);
+
+                    var received = await connection.ReadSentJsonAsync().OrTimeout();
+                    Assert.Equal(HubProtocolConstants.StreamItemMessageType, received["type"]);
+                    Assert.Equal(item, received["item"]);
+                    Assert.Equal(streamId, received["invocationId"]);
+                }
             }
         }
 
@@ -237,7 +250,9 @@ namespace Microsoft.AspNetCore.SignalR.Client.Tests
                 Assert.Equal(HubProtocolConstants.StreamCompleteMessageType, completion["type"]);
 
                 var expected = new SampleObject("oof", 14);
-                await connection.ReceiveJsonMessage(new { type = HubProtocolConstants.CompletionMessageType, invocationId = id, result = expected });
+                await connection.ReceiveJsonMessage(
+                    new { type = HubProtocolConstants.CompletionMessageType, invocationId = id, result = expected }
+                    ).OrTimeout();
                 var result = await invokeTask.OrTimeout();
 
                 Assert.Equal(expected.Foo, result.Foo);
@@ -246,7 +261,7 @@ namespace Microsoft.AspNetCore.SignalR.Client.Tests
         }
 
         [Fact]
-        public async Task UploadStreamCanceled()
+        public async Task UploadStreamCancelationSendsStreamComplete()
         {
             using (StartVerifiableLog(out var loggerFactory, LogLevel.Trace))
             {
@@ -266,18 +281,19 @@ namespace Microsoft.AspNetCore.SignalR.Client.Tests
                 // after cancellation, don't send from the pipe
                 foreach (var number in new[] { 42, 43, 322, 3145, -1234 })
                 {
+
                     await channel.Writer.WriteAsync(number);
                 }
 
                 // the next sent message should be a completion message
                 var complete = await connection.ReadSentJsonAsync().OrTimeout();
                 Assert.Equal(HubProtocolConstants.StreamCompleteMessageType, complete["type"]);
-                Assert.NotNull(complete["error"]);
+                Assert.EndsWith("canceled by client.", ((string)complete["error"]));
             } 
         }
 
         [Fact]
-        public async Task PrematureInvocationResponse()
+        public async Task InvocationCanCompleteBeforeStreamCompletes()
         {
             using (StartVerifiableLog(out var loggerFactory, LogLevel.Trace))
             {
